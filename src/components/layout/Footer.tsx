@@ -32,7 +32,7 @@ export default function Footer() {
     {
       title: "Ethnic Wear",
       items: [
-        { name: "Kurtas", link: "/category/kurta-sets" },
+      
         { name: "Nehru Jackets", link: "/category/nehru-jackets" },
         { name: "Sherwani", link: "/category/sherwani" },
         { name: "Dhotis", link: "/category/dhotis" },
