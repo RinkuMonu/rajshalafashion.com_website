@@ -26,8 +26,10 @@ interface Product {
   }[]
   category?: {
     name: string
-  },
-  brand?: string;
+  }
+  brand?: string | {
+    name: string
+  }
 }
 
 
@@ -124,6 +126,16 @@ export default function Products() {
       const data = await res.json();
 
       if (Array.isArray(data.products)) {
+        // Debug: Log first product to check brand structure
+        if (data.products.length > 0 && page === 1) {
+          console.log('Sample Product Brand Structure:', {
+            fullProduct: data.products[0],
+            brandField: data.products[0].brand,
+            brandType: typeof data.products[0].brand,
+            brandName: data.products[0].brand?.name || data.products[0].brand
+          });
+        }
+
         // --- MAIN LOGIC HERE ---
         // Agar page 1 hai toh naya data set karo, warna pichle data mein jodh do
         setProducts(prev => (page === 1 ? data.products : [...prev, ...data.products]));
@@ -186,12 +198,42 @@ export default function Products() {
       // 3. Color Match (Agar selectedColors khali hai toh true, warna check karein)
       const productColors = product.size?.flatMap(s => s.colors?.map(c => c.toLowerCase()) || []) || []
       const colorMatch = selectedColors.length === 0 || selectedColors.some(color => productColors.includes(color))
-      const brandMatch = selectedBrands.length === 0 || 
-        (product.brand && selectedBrands.some(brand => 
-          brand.toLowerCase() === product?.brand?.name?.toLowerCase()
-        ));
+      
+      // 4. Brand Match - ENHANCED: Better brand comparison with debugging
+      let brandMatch = true;
+      if (selectedBrands.length > 0) {
+        if (!product.brand) {
+          // Product has no brand - doesn't match
+          brandMatch = false;
+        } else {
+          // Extract brand name from product
+          const productBrandName = typeof product.brand === 'string' 
+            ? product.brand 
+            : product.brand?.name;
+          
+          // Debug log (remove after testing)
+          if (selectedBrands.length > 0 && productBrandName) {
+            console.log('Checking brand:', {
+              productBrand: productBrandName,
+              selectedBrands: selectedBrands,
+              matches: selectedBrands.some(brand => 
+                brand.toLowerCase().trim() === productBrandName.toLowerCase().trim()
+              )
+            });
+          }
+          
+          // Check if product brand matches any selected brand
+          brandMatch = selectedBrands.some(brand => 
+            brand.toLowerCase().trim() === productBrandName?.toLowerCase().trim()
+          );
+        }
+      }
 
-          return priceMatch && sizeMatch && colorMatch && brandMatch;
+      // 5. Category Match - Filter by URL category parameter
+      const categoryMatch = !category || 
+        product.category?.name?.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase();
+
+      return priceMatch && sizeMatch && colorMatch && brandMatch && categoryMatch;
     })
 
     const sorted = filtered.sort((a, b) => {
@@ -208,7 +250,7 @@ export default function Products() {
     })
 
     setFilteredProducts(sorted)
-  }, [products, priceRange, sortBy, selectedSizes,selectedColors,selectedBrands])
+  }, [products, priceRange, sortBy, selectedSizes, selectedColors, selectedBrands, category])
 
   // const handleSizeChange = (size: string) => {
   //     setSelectedSizes(prev => 
@@ -228,6 +270,8 @@ export default function Products() {
     setHasMore(true);
     setPriceRange([initialMinPrice, initialMaxPrice])
     setSelectedSizes([])
+    setSelectedColors([]);
+    setSelectedBrands([]);
     setSortBy("newest")
     setSpecialFilters({
       isPopular: false,
@@ -235,8 +279,6 @@ export default function Products() {
       isFeatured: false,
       isNewArrival: false,
     })
-    setSelectedColors([]);
-    setSelectedBrands([]);
   }
 
   useEffect(() => {
@@ -275,8 +317,17 @@ export default function Products() {
       try {
         const res = await fetch(`${baseUrl}/brands`); // Aapka API path
         const data = await res.json();
+        
+        // Debug: Check brands structure
+        console.log('Brands API Response:', {
+          fullResponse: data,
+          brandsArray: Array.isArray(data) ? data : data.brands,
+          firstBrand: Array.isArray(data) ? data[0] : data.brands?.[0]
+        });
+        
         // Maan lete hain data array mein aa raha hai
-        setBrands(Array.isArray(data) ? data : data.brands || []);
+        const brandsArray = Array.isArray(data) ? data : data.brands || [];
+        setBrands(brandsArray);
       } catch (error) {
         console.error("Error fetching brands:", error);
       }

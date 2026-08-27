@@ -19,7 +19,7 @@ import Login1 from "../../pages/Login1";
 interface Product {
   _id: string;
   productName: string;
-  images: string;
+  images: string[];
   category: {
     name: string;
   };
@@ -29,6 +29,7 @@ interface Product {
   description?: string;
   rating?: number;
   reviewCount?: number;
+  stock?: number;
 }
 
 const Arrivals = ({ addToCart }: { addToCart: (product: Product) => void }) => {
@@ -306,91 +307,115 @@ const Arrivals = ({ addToCart }: { addToCart: (product: Product) => void }) => {
                       .map((product) => (
                         <div
                           key={product._id}
-                          className="group relative bg-white  shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-hidden mb-8"
+                          className="group relative bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-hidden mb-8"
                           onMouseEnter={() => setHoveredProduct(product._id)}
                           onMouseLeave={() => setHoveredProduct(null)}
                         >
                           {/* Product Image */}
-                       <div className="relative aspect-square overflow-hidden group">
+                          <div className="relative aspect-square overflow-hidden group cursor-pointer">
+                            {/* Clickable Image for Preview */}
+                            <img
+                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                              src={`${baseUrliMAGE}${Array.isArray(product.images) ? product.images[0] : product.images}`}
+                              alt={product.productName}
+                              loading="lazy"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openProductModal(product);
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.src = '/placeholder.svg';
+                              }}
+                            />
 
-  {/* Product Image */}
-  <img
-    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-    src={`${baseUrliMAGE}${product.images[0]}`}
-    alt={product.productName}
-    loading="lazy"
-  />
+                            {/* Dark fade for luxury look */}
+                            <div 
+                              className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-all duration-500 z-[1]"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openProductModal(product);
+                              }}
+                            />
 
-  {/* Dark fade for luxury look */}
-  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-all duration-500 z-[1]" />
+                            {/* Bottom gold gradient hover layer */}
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-[2] bg-gradient-to-t from-[#cba146] via-[#cba146]/40 to-transparent pointer-events-none" />
 
-  {/* Bottom gold gradient hover layer */}
-  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-[2] bg-gradient-to-t from-[#cba146] via-[#cba146]/40 to-transparent" />
+                            {/* Discount Badge */}
+                            {product.discount && (
+                              <div className="absolute top-4 left-4 text-white bg-[#cba146] text-xs font-bold px-3 py-1.5 rounded-full z-20 shadow-md">
+                                {product.discount}% OFF
+                              </div>
+                            )}
 
-  {/* Discount Badge */}
-  {product.discount && (
-    <div className="absolute top-4 left-4 text-white bg-[#cba146] text-xs font-bold px-3 py-1.5 rounded-full z-20 shadow-md">
-      {product.discount}% OFF
-    </div>
-  )}
+                            {/* Action Buttons */}
+                            <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-400 z-20">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(product);
+                                }}
+                                className="bg-white/90 backdrop-blur rounded-full p-2 shadow-xl transition hover:scale-110"
+                                style={{ color: "#cba146" }}
+                                title="Add to Cart"
+                              >
+                                <ShoppingCart size={18} />
+                              </button>
 
-  {/* Action Buttons */}
-  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-3 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-400 z-20">
-    <button
-      onClick={() => handleAddToCart(product)}
-      className="bg-white/90 backdrop-blur rounded-full p-2 shadow-xl transition hover:scale-110"
-      style={{ color: "#cba146" }}
-    >
-      <ShoppingCart size={18} />
-    </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openProductModal(product);
+                                }}
+                                className="bg-white/90 backdrop-blur rounded-full p-2 shadow-xl transition hover:scale-110"
+                                style={{ color: "#cba146" }}
+                                title="Quick View"
+                              >
+                                <Eye size={18} />
+                              </button>
 
-    <button
-      onClick={() => openProductModal(product)}
-      className="bg-white/90 backdrop-blur rounded-full p-2 shadow-xl transition hover:scale-110"
-      style={{ color: "#cba146" }}
-    >
-      <Eye size={18} />
-    </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToWishlist(product);
+                                }}
+                                className="bg-white/90 backdrop-blur rounded-full p-2 shadow-xl transition hover:scale-110"
+                                style={{
+                                  color: hoveredProduct === product._id ? "#ef4444" : "#cba146",
+                                }}
+                                title="Add to Wishlist"
+                              >
+                                <Heart size={18} />
+                              </button>
+                            </div>
 
-    <button
-      onClick={() => handleAddToWishlist(product)}
-      className="bg-white/90 backdrop-blur rounded-full p-2 shadow-xl transition hover:scale-110"
-      style={{
-        color:
-          hoveredProduct === product._id ? "#ef4444" : "#cba146",
-      }}
-    >
-      <Heart size={18} />
-    </button>
-  </div>
-
-  {/* Add to Cart Overlay */}
-  {product.stock <= 0 ? (
-    <button
-      disabled
-      className={`absolute bottom-0 left-0 w-full py-4 text-white font-bold tracking-wide z-20 transition-all duration-500
-      ${hoveredProduct === product._id ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}
-      style={{
-        background:
-          "linear-gradient(to top, #cba146 0%, rgba(203,161,70,0.85) 40%, transparent 100%)",
-      }}
-    >
-      OUT OF STOCK
-    </button>
-  ) : (
-    <button
-      onClick={() => handleAddToCart(product)}
-      className={`absolute bottom-0 left-0 w-full py-4 text-white font-bold tracking-wide z-20 transition-all duration-500
-      ${hoveredProduct === product._id ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}
-      style={{
-        background:
-          "linear-gradient(to top, #cba146 0%, rgba(203,161,70,0.85) 40%, transparent 100%)",
-      }}
-    >
-      ADD TO CART
-    </button>
-  )}
-</div>
+                            {/* Add to Cart Overlay */}
+                            {product.stock !== undefined && product.stock <= 0 ? (
+                              <button
+                                disabled
+                                className={`absolute bottom-0 left-0 w-full py-4 text-white font-bold tracking-wide z-20 transition-all duration-500 cursor-not-allowed
+                                ${hoveredProduct === product._id ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}
+                                style={{
+                                  background: "linear-gradient(to top, #cba146 0%, rgba(203,161,70,0.85) 40%, transparent 100%)",
+                                }}
+                              >
+                                OUT OF STOCK
+                              </button>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(product);
+                                }}
+                                className={`absolute bottom-0 left-0 w-full py-4 text-white font-bold tracking-wide z-20 transition-all duration-500 hover:bg-[#cba146]
+                                ${hoveredProduct === product._id ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}
+                                style={{
+                                  background: "linear-gradient(to top, #cba146 0%, rgba(203,161,70,0.85) 40%, transparent 100%)",
+                                }}
+                              >
+                                ADD TO CART
+                              </button>
+                            )}
+                          </div>
 
 
                           {/* Product Info */}
@@ -550,9 +575,12 @@ const Arrivals = ({ addToCart }: { addToCart: (product: Product) => void }) => {
               <div className="flex items-center justify-center bg-gray-50 rounded-xl p-8">
                 <img
                   className="rounded-xl object-contain max-h-[400px]"
-                  src={`${baseUrliMAGE}${selectedProduct.images}`}
+                  src={`${baseUrliMAGE}${Array.isArray(selectedProduct.images) ? selectedProduct.images[0] : selectedProduct.images}`}
                   alt={selectedProduct.productName}
                   loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
                 />
               </div>
 
@@ -633,17 +661,35 @@ const Arrivals = ({ addToCart }: { addToCart: (product: Product) => void }) => {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => handleAddToCart(selectedProduct)}
-                    className="flex-1 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 hover:shadow-lg"
+                    disabled={selectedProduct.stock !== undefined && selectedProduct.stock <= 0}
+                    className={`flex-1 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 ${
+                      selectedProduct.stock !== undefined && selectedProduct.stock <= 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:shadow-lg"
+                    }`}
                     style={{ background: "#cba146" }}
                   >
                     <ShoppingCart size={18} />
-                    <span>Add to Cart</span>
+                    <span>
+                      {selectedProduct.stock !== undefined && selectedProduct.stock <= 0
+                        ? "Out of Stock"
+                        : "Add to Cart"}
+                    </span>
                   </button>
                   <button
                     onClick={() => handleAddToCart(selectedProduct)}
-                    className="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 hover:shadow-lg"
+                    disabled={selectedProduct.stock !== undefined && selectedProduct.stock <= 0}
+                    className={`flex-1 bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 ${
+                      selectedProduct.stock !== undefined && selectedProduct.stock <= 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-gray-900 hover:shadow-lg"
+                    }`}
                   >
-                    <span>Buy Now</span>
+                    <span>
+                      {selectedProduct.stock !== undefined && selectedProduct.stock <= 0
+                        ? "Out of Stock"
+                        : "Buy Now"}
+                    </span>
                   </button>
                 </div>
               </div>

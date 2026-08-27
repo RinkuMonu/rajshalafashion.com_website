@@ -19,7 +19,7 @@ import Login1 from "../../pages/Login1";
 interface Product {
   _id: string;
   productName: string;
-  images: string;
+  images: string[];
   category: {
     name: string;
   };
@@ -29,6 +29,7 @@ interface Product {
   description?: string;
   rating?: number;
   reviewCount?: number;
+  stock?: number;
 }
 
 const TrendingProducts = ({ addToCart,}: { addToCart: (product: Product) => void;}) => {
@@ -223,7 +224,10 @@ const TrendingProducts = ({ addToCart,}: { addToCart: (product: Product) => void
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
   };
-  const outOfStock = !products || products.stock >= 0;
+  // Check if product is out of stock
+  const isProductOutOfStock = (product: Product) => {
+    return product.stock !== undefined && product.stock <= 0;
+  };
 
 
   return (
@@ -316,9 +320,12 @@ const TrendingProducts = ({ addToCart,}: { addToCart: (product: Product) => void
   {/* Image Section */}
   <div className="relative aspect-square overflow-hidden">
     <img
-      src={`${baseUrliMAGE}${product.images[0]}`}
+      src={`${baseUrliMAGE}${Array.isArray(product.images) ? product.images[0] : product.images}`}
       alt={product.productName}
       loading="lazy"
+      onError={(e) => {
+        e.currentTarget.src = '/placeholder.svg';
+      }}
       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
     />
 
@@ -372,7 +379,7 @@ const TrendingProducts = ({ addToCart,}: { addToCart: (product: Product) => void
       </div>
 
       {/* Add To Cart Button */}
-      {product.stock <= 0 ? (
+      {isProductOutOfStock(product) ? (
         <button
           disabled
           className="mt-4 px-8 py-3 rounded-full bg-white/80 text-gray-700 font-semibold cursor-not-allowed"
@@ -523,9 +530,12 @@ const TrendingProducts = ({ addToCart,}: { addToCart: (product: Product) => void
               <div className="flex items-center justify-center bg-gray-50 rounded-xl p-8">
                 <img
                   className="rounded-xl object-contain max-h-[400px]"
-                  src={`${baseUrliMAGE}${selectedProduct?.images?.[0]}`}
+                  src={`${baseUrliMAGE}${Array.isArray(selectedProduct?.images) ? selectedProduct.images[0] : selectedProduct?.images}`}
                   alt={selectedProduct.productName}
                   loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
                 />
               </div>
 
@@ -606,34 +616,33 @@ const TrendingProducts = ({ addToCart,}: { addToCart: (product: Product) => void
                   {/* Add to Cart */}
                   <button
                     onClick={() => {
-                      if (outOfStock) return; // safety guard
+                      if (isProductOutOfStock(selectedProduct)) return;
                       handleAddToCart(selectedProduct);
                     }}
-                    disabled={outOfStock}
+                    disabled={isProductOutOfStock(selectedProduct)}
                     type="button"
                     className={`flex-1 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2
-      ${outOfStock ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"}
+      ${isProductOutOfStock(selectedProduct) ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"}
     `}
                     style={{ background: "#cba146" }}
                   >
                     <ShoppingCart size={18} />
-                    <span>{outOfStock ? "Out of Stock" : "Add to Cart"}</span>
+                    <span>{isProductOutOfStock(selectedProduct) ? "Out of Stock" : "Add to Cart"}</span>
                   </button>
 
                   {/* Buy Now */}
                   <button
                     onClick={() => {
-                      if (outOfStock) return; // safety guard
-                      // yahan aap apna buyNow() ya checkout() function call karna chahte ho
+                      if (isProductOutOfStock(selectedProduct)) return;
                       handleAddToCart(selectedProduct);
                     }}
-                    disabled={outOfStock}
+                    disabled={isProductOutOfStock(selectedProduct)}
                     type="button"
                     className={`flex-1 bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2
-      ${outOfStock ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-900 hover:shadow-lg"}
+      ${isProductOutOfStock(selectedProduct) ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-900 hover:shadow-lg"}
     `}
                   >
-                    <span>{outOfStock ? "Out of Stock" : "Buy Now"}</span>
+                    <span>{isProductOutOfStock(selectedProduct) ? "Out of Stock" : "Buy Now"}</span>
                   </button>
                 </div>
               </div>

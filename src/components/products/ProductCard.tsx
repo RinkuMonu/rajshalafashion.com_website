@@ -18,13 +18,17 @@ interface Product {
   price?: number;
   discount?: number;
   size?: string;
-  brand?: string;
+  brand?: string | {
+    _id?: string;
+    name: string;
+  };
   category: {
     _id: string;
     name: string;
   };
   rating?: number;
   reviewCount?: number;
+  stock?: number;
 }
 
 interface ProductCardProps {
@@ -262,7 +266,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <div className="p-4">
             {ratedProduct.brand && (
               <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
-                {ratedProduct?.brand?.name}
+                {typeof ratedProduct.brand === 'string' 
+                  ? ratedProduct.brand 
+                  : ratedProduct.brand?.name}
               </p>
             )}
 
