@@ -16,6 +16,7 @@ export default function TopCategories() {
   const baseUrliMAGE = import.meta.env.VITE_API_BASE_URL_IMAGE;
 
   const linkUrl = (text) => {
+    if (!text) return "";
     return text
       .toLowerCase()
       .trim()
@@ -32,11 +33,25 @@ export default function TopCategories() {
           setCategories(data.website.categories)
         } else {
           console.warn("Categories not found in response:", data)
-          setCategories(["Suits", "Sarees", "Fabrics", "Men's Wear", "Women's Wear", "Accessories"])
+          setCategories([
+            { name: "Suits", description: "Elegant suits for every occasion" },
+            { name: "Sarees", description: "Traditional sarees with modern elegance" },
+            { name: "Fabrics", description: "Premium quality fabrics" },
+            { name: "Men's Wear", description: "Stylish menswear collection" },
+            { name: "Women's Wear", description: "Beautiful women's fashion" },
+            { name: "Accessories", description: "Complete your look" }
+          ])
         }
       } catch (error) {
         console.error("Failed to fetch categories:", error)
-        setCategories(["Suits", "Sarees", "Fabrics", "Men's Wear", "Women's Wear", "Accessories"])
+        setCategories([
+          { name: "Suits", description: "Elegant suits for every occasion" },
+          { name: "Sarees", description: "Traditional sarees with modern elegance" },
+          { name: "Fabrics", description: "Premium quality fabrics" },
+          { name: "Men's Wear", description: "Stylish menswear collection" },
+          { name: "Women's Wear", description: "Beautiful women's fashion" },
+          { name: "Accessories", description: "Complete your look" }
+        ])
       }
     }
 

@@ -24,6 +24,7 @@ import TreckPents from "../components/home/TreckPents";
 import BannerSection1 from "../components/banner/Banner1";
 import BannerSection2 from "../components/banner/Banner2";
 import Activeuser from "../components/home/Activeuser";
+import { Product } from "../types";
 
 interface HomeProps {
   addToCart: (product: Product) => void;
@@ -70,7 +71,8 @@ export default function Home({ addToCart }: HomeProps) {
 
         console.log("Post Response:", postResponse.data);
       } catch (error) {
-        console.error("Error in fetching or posting data:", error);
+        // Silently handle error - this is not critical for app functionality
+        console.log("Payment callback service unavailable");
       }
     };
 

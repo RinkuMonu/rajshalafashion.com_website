@@ -23,15 +23,15 @@
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.js';
+import App from './App';
 import './index.css';
 import { Provider } from 'react-redux';
-import store from './store.js';
+import store from './store';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from "./Context/AuthContext";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
