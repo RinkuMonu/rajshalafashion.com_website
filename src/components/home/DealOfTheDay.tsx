@@ -172,7 +172,7 @@ const dealProducts = useMemo(() => {
     const fetchProducts = async () => {
       try {
         const res = await fetch(
-          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}`
+          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&limit=1000`
         );
         const data = await res.json();
         if (Array.isArray(data.products)) {

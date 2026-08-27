@@ -113,7 +113,7 @@ export default function Kurtaset() {
     const fetchProducts = async () => {
       try {
         const res = await fetch(
-          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=kurta+sets`
+          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=kurta+sets&limit=1000`
         );
         const data = await res.json();
         setProducts(data.products || []);

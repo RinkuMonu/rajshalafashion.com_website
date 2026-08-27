@@ -114,7 +114,7 @@ export default function Blazer() {
     const fetchProducts = async () => {
       try {
         const res = await fetch(
-          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=blazer+and+coats`
+          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=blazer+and+coats&limit=1000`
         );
         const data = await res.json();
         setProducts(data.products || []);

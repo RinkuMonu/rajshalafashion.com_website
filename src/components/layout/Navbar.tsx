@@ -1015,7 +1015,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount }) => {
         Dhotis
       </Link>
        <Link
-        to="/category/sherwanis"
+        to="/category/sherwani"
         className="text-[13px] font-semibold transition-all duration-300 hover:text-[#cba146] text-[#1B2E4F]"
       >
         Sherwani
