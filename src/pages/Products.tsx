@@ -229,9 +229,36 @@ export default function Products() {
         }
       }
 
-      // 5. Category Match - Filter by URL category parameter
-      const categoryMatch = !category || 
-        product.category?.name?.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase();
+      // 5. Category Match - ENHANCED: Flexible category matching
+      let categoryMatch = true;
+      if (category) {
+        const urlCategory = category.toLowerCase().replace(/-/g, ' ').trim();
+        const productCategory = product.category?.name?.toLowerCase().trim();
+        
+        // Debug log
+        if (productCategory) {
+          console.log('Category Match Check:', {
+            urlCategory,
+            productCategory,
+            urlParam: category,
+            productCategoryOriginal: product.category?.name,
+            exactMatch: urlCategory === productCategory,
+            partialMatch: productCategory.includes(urlCategory) || urlCategory.includes(productCategory)
+          });
+        }
+        
+        // Try multiple matching strategies:
+        // 1. Exact match (after normalization)
+        // 2. Partial match (one contains the other)
+        // 3. Singular/plural match (kurta vs kurtas)
+        categoryMatch = !productCategory ? false : (
+          urlCategory === productCategory ||
+          productCategory.includes(urlCategory) ||
+          urlCategory.includes(productCategory) ||
+          urlCategory === productCategory.replace(/s$/, '') || // Remove trailing 's'
+          productCategory === urlCategory.replace(/s$/, '')
+        );
+      }
 
       return priceMatch && sizeMatch && colorMatch && brandMatch && categoryMatch;
     })
