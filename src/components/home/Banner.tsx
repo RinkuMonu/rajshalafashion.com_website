@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { ArrowRight } from "lucide-react";
@@ -126,10 +125,6 @@ const Banner: React.FC = () => {
           slidesPerView={1}
           spaceBetween={0}
           loop={true}
-          pagination={{
-            clickable: true,
-            dynamicBullets: true,
-          }}
           navigation={{
             nextEl: ".swiper-button-next",
             prevEl: ".swiper-button-prev",
@@ -138,7 +133,7 @@ const Banner: React.FC = () => {
             delay: 5000,
             disableOnInteraction: false,
           }}
-          modules={[Autoplay, Pagination, Navigation]}
+          modules={[Autoplay, Navigation]}
           className="w-full h-auto"
         >
           {banners.map((item) => (

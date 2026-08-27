@@ -98,13 +98,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/pagination';
 import { Link } from 'react-router-dom';
+import { Product } from '../../types';
 
 export default function Blazer() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const referenceWebsite = import.meta.env.VITE_REFERENCE_WEBSITE;
@@ -139,7 +139,7 @@ export default function Blazer() {
 
       <div className="max-w-7xl mx-auto">
         <Swiper
-          modules={[Pagination, Autoplay]}
+          modules={[Autoplay]}
           spaceBetween={14}
           slidesPerView={1.2}
           breakpoints={{
@@ -163,7 +163,7 @@ export default function Blazer() {
   {/* Image */}
   <div className="absolute inset-0">
     <img
-      src={`${imageBaseUrl}${product.images[0]}`}
+      src={`${imageBaseUrl}${Array.isArray(product.images) ? product.images[0] : product.images || ''}`}
       alt={product.productName}
       className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
     />
@@ -185,7 +185,7 @@ export default function Blazer() {
         {/* Price */}
         <div className="bg-white/25 backdrop-blur-md  rounded-xl px-4 py-1.5 shadow-lg">
           <p className="text-white text-xl font-extrabold tracking-wide">
-       ₹{Math.round(product.actualPrice)}
+       ₹{Math.round(product.actualPrice || 0)}
           </p>
         </div>
 

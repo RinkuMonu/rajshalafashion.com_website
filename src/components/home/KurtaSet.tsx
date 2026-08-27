@@ -97,13 +97,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/pagination';
 import { Link } from 'react-router-dom';
+import { Product } from '../../types';
 
 export default function Kurtaset() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const referenceWebsite = import.meta.env.VITE_REFERENCE_WEBSITE;
@@ -120,9 +120,9 @@ export default function Kurtaset() {
           'kurta'
         ];
         
-        let allProducts = [];
+        let allProducts: Product[] = [];
         
-        for (const categoryQuery of categoryQueries) {
+        for (const _categoryQuery of categoryQueries) {
           const res = await fetch(
             `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&limit=100`
           );
@@ -130,8 +130,10 @@ export default function Kurtaset() {
           
           if (data.products && Array.isArray(data.products)) {
             // Filter products by category name (flexible matching)
-            const filteredProducts = data.products.filter((product) => {
-              const categoryName = product.category?.name?.toLowerCase() || '';
+            const filteredProducts = data.products.filter((product: Product) => {
+              const categoryName = typeof product.category === 'string' 
+                ? product.category.toLowerCase() 
+                : product.category?.name?.toLowerCase() || '';
               return (
                 categoryName.includes('kurta') ||
                 categoryName.includes('ethnic') ||
@@ -145,7 +147,7 @@ export default function Kurtaset() {
         
         // Remove duplicates based on product _id
         const uniqueProducts = Array.from(
-          new Map(allProducts.map(item => [item._id, item])).values()
+          new Map(allProducts.map((item: Product) => [item._id, item])).values()
         );
         
         console.log('Kurta Products Found:', uniqueProducts.length);
@@ -178,7 +180,7 @@ export default function Kurtaset() {
           </div>
         ) : (
           <Swiper
-            modules={[Pagination, Autoplay]}
+            modules={[Autoplay]}
             spaceBetween={14}
             slidesPerView={1.2}
             breakpoints={{

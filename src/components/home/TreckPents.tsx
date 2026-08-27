@@ -97,9 +97,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/pagination';
 import { Link } from 'react-router-dom';
 
 export default function TreckPents() {
@@ -138,7 +137,7 @@ export default function TreckPents() {
 
      <div className="max-w-7xl mx-auto px-4">
   <Swiper
-    modules={[Pagination, Autoplay]}
+    modules={[Autoplay]}
     spaceBetween={14}
     slidesPerView={1.2}   // Mobile default
     breakpoints={{

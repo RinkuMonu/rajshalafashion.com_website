@@ -7,7 +7,7 @@ export interface Product {
   price: number;
   actualPrice?: number;
   image: string;
-  images?: string[];
+  images?: string[] | string;
   description?: string;
   category?: string | {
     name: string;
@@ -17,4 +17,5 @@ export interface Product {
   rating?: number;
   reviewCount?: number;
   stock?: number;
+  size?: string[] | any[];
 }

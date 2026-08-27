@@ -1,8 +1,7 @@
 'use client';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/pagination';
 import { Link } from 'react-router-dom';
 
 export default function Popular() {
@@ -22,7 +21,7 @@ export default function Popular() {
             {/* Fixed Swiper Container */}
             <div className="max-w-7xl mx-auto">
                 <Swiper
-                    modules={[Pagination, Autoplay]}
+                    modules={[Autoplay]}
                     spaceBetween={14}
                     slidesPerView={1.2}
                     breakpoints={{
