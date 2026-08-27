@@ -472,24 +472,6 @@ const Arrivals = ({ addToCart }: { addToCart: (product: Product) => void }) => {
               ))}
             </div>
           </div>
-
-          {/* Slider Dots */}
-          <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: maxSlides }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === index ? "w-8" : ""
-                  }`}
-                style={{
-                  background:
-                    currentSlide === index
-                      ? "#cba146"
-                      : "rgba(120, 120, 120, 0.3)",
-                }}
-              />
-            ))}
-          </div>
         </div>
 
         {/* View All Button */}
