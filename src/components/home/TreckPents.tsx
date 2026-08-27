@@ -113,7 +113,7 @@ export default function TreckPents() {
     const fetchProducts = async () => {
       try {
         const res = await fetch(
-          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=track+pants+and+joggers`
+          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=track+pants+and+joggers&limit=1000`
         );
         const data = await res.json();
         setProducts(data.products || []);

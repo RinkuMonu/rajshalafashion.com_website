@@ -112,7 +112,7 @@ export default function Casual() {
     const fetchProducts = async () => {
       try {
         const res = await fetch(
-          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=casual+shirts`
+          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&category=casual+shirts&limit=1000`
         );
         const data = await res.json();
         setProducts(data.products || []);

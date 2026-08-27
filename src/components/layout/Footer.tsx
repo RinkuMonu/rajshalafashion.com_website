@@ -37,7 +37,7 @@ export default function Footer() {
       items: [
         { name: "Kurtas", link: "/category/kurta-sets" },
         { name: "Nehru Jackets", link: "/category/nehru-jackets" },
-        { name: "Sherwanis", link: "/category/sherwanis" },
+        { name: "Sherwani", link: "/category/sherwani" },
         { name: "Dhotis", link: "/category/dhotis" },
       ],
     },

@@ -108,11 +108,11 @@ const TrendingProducts = ({ addToCart,}: { addToCart: (product: Product) => void
     const fetchProducts = async () => {
       try {
         const res = await fetch(
-          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}`
+          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&limit=1000`
         );
         const data = await res.json();
         if (Array.isArray(data.products)) {
-          setProducts(data.products.slice(0, 12));
+          setProducts(data.products || []);
         } else {
           console.error("Unexpected products format:", data);
         }

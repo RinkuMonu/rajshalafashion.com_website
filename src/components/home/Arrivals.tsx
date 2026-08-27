@@ -107,11 +107,11 @@ const Arrivals = ({ addToCart }: { addToCart: (product: Product) => void }) => {
     const fetchProducts = async () => {
       try {
         const res = await fetch(
-          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}`
+          `${baseUrl}/product/getproducts?referenceWebsite=${referenceWebsite}&limit=1000`
         );
         const data = await res.json();
         if (Array.isArray(data.products)) {
-          setProducts(data.products.slice(5, 17)); // Get different slice for arrivals
+          setProducts(data.products);
         } else {
           console.error("Unexpected products format:", data);
         }
