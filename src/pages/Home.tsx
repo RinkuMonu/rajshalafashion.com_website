@@ -16,9 +16,8 @@ import axios from "axios";
 import { useEffect } from "react";
 // import BlockImageSection from "../components/home/Blockimage";
 // import ElevatedSection from "../components/home/Elevated";
-import Popular from "../components/home/Popular";
 import Blazer from "../components/home/Blazer";
-import Kurtaset from "../components/home/KurtaSet";
+import Jeans from "../components/home/Jeans";
 import Casual from "../components/home/Casual";
 import TreckPents from "../components/home/TreckPents";
 import BannerSection1 from "../components/banner/Banner1";
@@ -90,7 +89,6 @@ export default function Home({ addToCart }: HomeProps) {
       <TreckPents />
       <Arrivals addToCart={addToCart} />
       <BannerSection1 />
-      <Popular />
       <DealOfTheDay addToCart={addToCart} />
       <TopCategories />
       {/* <Activeuser /> */}
@@ -101,7 +99,7 @@ export default function Home({ addToCart }: HomeProps) {
       <Casual />
       <BannerSection2 />
       <Blazer />
-      <Kurtaset />
+      <Jeans />
     </>
   );
 }

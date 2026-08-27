@@ -1,8 +1,5 @@
 "use client";
 import { Link } from "react-router-dom";
-import { FaInstagram, FaPinterestP } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { FaFacebookF } from "react-icons/fa";
 import { PiCoatHangerDuotone } from "react-icons/pi";
 import { FiPhone } from "react-icons/fi";
 
@@ -121,16 +118,16 @@ export default function Footer() {
 
 <ul>
    <li>
-              <Link to="mailto:info@rajshalafashion.com" className="hover:text-[#cba146] transition flex items-center gap-2 pt-4">
-                ✉️ info@rajshalafashion.com
+              <Link to="mailto:rajshalafashions@gmail.com" className="hover:text-[#cba146] transition flex items-center gap-2 pt-4">
+                ✉️ rajshalafashions@gmail.com
               </Link>
             </li>
              <li>
              <Link
-  to="tel:+917733993784"
+  to="tel:+917667430669"
   className="hover:text-[#cba146] transition flex items-center gap-2 pt-4"
 >
-  <FiPhone /> +91 7733993784
+  <FiPhone /> +91 7667430669
 </Link>
             </li>
 </ul>

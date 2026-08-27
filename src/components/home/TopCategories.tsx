@@ -29,33 +29,31 @@ export default function TopCategories() {
         const res = await fetch(`${baseUrl}/website/${referenceWebsite}`)
         const data = await res.json()
 
+        console.log('Categories API Response:', data);
+        console.log('Categories Array:', data.website?.categories);
+
         if (Array.isArray(data.website?.categories)) {
-          setCategories(data.website.categories)
+          const categoriesWithImages = data.website.categories.map(cat => ({
+            ...cat,
+            // Ensure image path is present, fallback to placeholder
+            image: cat.image || '/placeholder.svg'
+          }));
+          
+          console.log('Processed Categories:', categoriesWithImages);
+          setCategories(categoriesWithImages);
         } else {
-          console.warn("Categories not found in response:", data)
-          setCategories([
-            { name: "Suits", description: "Elegant suits for every occasion" },
-            { name: "Sarees", description: "Traditional sarees with modern elegance" },
-            { name: "Fabrics", description: "Premium quality fabrics" },
-            { name: "Men's Wear", description: "Stylish menswear collection" },
-            { name: "Women's Wear", description: "Beautiful women's fashion" },
-            { name: "Accessories", description: "Complete your look" }
-          ])
+          console.warn("Categories not found in response:", data);
+          // Fallback categories (removed for clean API-based approach)
+          setCategories([]);
         }
       } catch (error) {
-        console.error("Failed to fetch categories:", error)
-        setCategories([
-          { name: "Suits", description: "Elegant suits for every occasion" },
-          { name: "Sarees", description: "Traditional sarees with modern elegance" },
-          { name: "Fabrics", description: "Premium quality fabrics" },
-          { name: "Men's Wear", description: "Stylish menswear collection" },
-          { name: "Women's Wear", description: "Beautiful women's fashion" },
-          { name: "Accessories", description: "Complete your look" }
-        ])
+        console.error("Failed to fetch categories:", error);
+        // On error, show empty state
+        setCategories([]);
       }
-    }
+    };
 
-    fetchCategories()
+    fetchCategories();
   }, [baseUrl, referenceWebsite])
 
   return (
@@ -82,81 +80,92 @@ export default function TopCategories() {
         </div>
 
         {/* ✅ Slider */}
-        <Swiper
-          modules={[Autoplay]}
-          spaceBetween={24}
-          autoplay={{ delay: 3500, disableOnInteraction: false }}
-          breakpoints={{
-            320: { slidesPerView: 1.2 },
-            640: { slidesPerView: 2.2 },
-            768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
-            1280: { slidesPerView: 5 },
-          }}
-        >
-          {categories.map((name, index) => (
-            <SwiperSlide key={index} className="pb-10">
-              <Link to={`/category/${linkUrl(name?.name)}`} className="group block h-full">
+        {categories.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">Loading categories...</p>
+          </div>
+        ) : (
+          <Swiper
+            modules={[Autoplay]}
+            spaceBetween={24}
+            autoplay={{ delay: 3500, disableOnInteraction: false }}
+            breakpoints={{
+              320: { slidesPerView: 1.2 },
+              640: { slidesPerView: 2.2 },
+              768: { slidesPerView: 3 },
+              1024: { slidesPerView: 4 },
+              1280: { slidesPerView: 5 },
+            }}
+          >
+            {categories.map((category, index) => (
+              <SwiperSlide key={category._id || index} className="pb-10">
+                <Link to={`/category/${linkUrl(category?.name)}`} className="group block h-full">
 
-                <div
-                  className="bg-white rounded-xl border-2 overflow-hidden h-[72vh] transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
-                  style={{ borderColor: "rgba(120, 120, 120, 0.3)" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "#cba146"
-                    e.currentTarget.style.boxShadow = "0 20px 40px rgba(157, 48, 137, 0.15)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(120, 120, 120, 0.3)"
-                    e.currentTarget.style.boxShadow = "0 10px 25px rgba(0, 0, 0, 0.1)"
-                  }}
-                >
-                  {/* Image */}
-                  <div className="relative h-80 overflow-hidden">
-                    <img
-                      src={`${baseUrliMAGE}${name?.image}` || "/placeholder.svg"}
-                      alt={name?.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
+                  <div
+                    className="bg-white rounded-xl border-2 overflow-hidden h-[72vh] transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+                    style={{ borderColor: "rgba(120, 120, 120, 0.3)" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#cba146"
+                      e.currentTarget.style.boxShadow = "0 20px 40px rgba(157, 48, 137, 0.15)"
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(120, 120, 120, 0.3)"
+                      e.currentTarget.style.boxShadow = "0 10px 25px rgba(0, 0, 0, 0.1)"
+                    }}
+                  >
+                    {/* Image */}
+                    <div className="relative h-80 overflow-hidden">
+                      <img
+                        src={category?.image ? `${baseUrliMAGE}${category.image}` : "/placeholder.svg"}
+                        alt={category?.name || 'Category'}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        onError={(e) => {
+                          console.error('Image load error for category:', category?.name);
+                          e.currentTarget.src = '/placeholder.svg';
+                        }}
+                        loading="lazy"
+                      />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transform scale-75 group-hover:scale-100 transition-transform duration-300"
+                          style={{ background: "#cba146" }}
+                        >
+                          <ArrowRight className="w-5 h-5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6">
+                      <h3 className="text-md font-bold mb-3" style={{ color: "#1B2E4F" }}>
+                        {category?.name || 'Category'}
+                      </h3>
+
                       <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transform scale-75 group-hover:scale-100 transition-transform duration-300"
+                        className="w-12 h-0.5 rounded-full mb-1 transition-all duration-300 group-hover:w-20"
                         style={{ background: "#cba146" }}
-                      >
-                        <ArrowRight className="w-5 h-5" />
+                      />
+
+                      <p className="text-gray-600 text-[12px] mb-4 line-clamp-2">
+                        {category?.description
+                          ? category?.description
+                          : `Explore our premium collection of ${category?.name?.toLowerCase() || 'products'} with authentic craftsmanship and quality materials.`}
+                      </p>
+
+                      <div className="flex items-center text-sm font-medium group-hover:translate-x-1 transition-transform duration-300">
+                        <span style={{ color: "#cba146" }}>Explore Collection</span>
+                        <ArrowRight className="ml-2 h-4 w-4" style={{ color: "#cba146" }} />
                       </div>
                     </div>
                   </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-md font-bold mb-3" style={{ color: "#1B2E4F" }}>
-                      {name?.name}
-                    </h3>
-
-                    <div
-                      className="w-12 h-0.5 rounded-full mb-1 transition-all duration-300 group-hover:w-20"
-                      style={{ background: "#cba146" }}
-                    />
-
-                    <p className="text-gray-600 text-[12px] mb-4 line-clamp-2">
-                      {name?.description
-                        ? name?.description
-                        : `Explore our premium collection of ${name?.name?.toLowerCase()} with authentic craftsmanship and quality materials.`}
-                    </p>
-
-                    <div className="flex items-center text-sm font-medium group-hover:translate-x-1 transition-transform duration-300">
-                      <span style={{ color: "#cba146" }}>Explore Collection</span>
-                      <ArrowRight className="ml-2 h-4 w-4" style={{ color: "#cba146" }} />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
 
         {/* Bottom Message */}
         {/* <div className="text-center mt-16">
