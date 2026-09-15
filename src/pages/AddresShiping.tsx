@@ -96,7 +96,7 @@ function AddressShipping({ cartItems }) {
   const [selectedAddressObj, setSelectedAddressObj] = useState<any>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const [selectedShipping, setSelectedShipping] = useState<string>("1");
-  const [selectedPayment, setSelectedPayment] = useState<string>("");
+  const [selectedPayment, setSelectedPayment] = useState<string>("orvian");
   // const [showCouponInput, setShowCouponInput] = useState(false);
   const [upiIntent, setUpiIntent] = useState(null);
   const [isloading, setIsLoading] = useState(false);
@@ -125,7 +125,7 @@ function AddressShipping({ cartItems }) {
   const addressFormRef = useRef<HTMLDivElement | null>(null);
 
 
-  const token = "zsdfgyxchh";
+  const token = localStorage.getItem("token") || "";
   useEffect(() => {
     const loadUser = () => {
       try {
@@ -410,39 +410,25 @@ useEffect(() => {
 
     try {
       const gatewayConfigs = {
-        upi1: {
-          apiUrl: "https://api.worldpayme.com/",
-          payload: {
-            amount: total.toString(),
-            reference: newRef,
-            name: userdata.name,
-            mobile: userdata.phone,
-            email: userdata.email,
-            userId: "67b6f05e6",
-            myip: "666666",
-          },
+        orvian: {
+          apiUrl: "https://orviansystem.com/api/v1.1/t1/UpiIntent",
+          payload: (() => {
+            const formData = new FormData();
+            formData.append("amount", total.toString());
+            formData.append("reference", newRef);
+            formData.append("name", userdata.name || "Customer");
+            formData.append("mobile", userdata.phone || "9999999999");
+            formData.append("email", userdata.email || "customer@example.com");
+            formData.append("myip", "6.66.666.56");
+            return formData;
+          })(),
           headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNmExY2Y5MGFhYjg3ZjEyOGJhMjc4MzYzYjYxODMxM2JlZmI2YzRhNTFjNDBiNTZhMmMwZjI4ZDNkMTQyYTlkMTg2M2U4MWQ2NGE0ZmM5M2QiLCJpYXQiOjE3ODkzNjkyNjMuMDkxNDE1LCJuYmYiOjE3ODkzNjkyNjMuMDkxNDE3LCJleHAiOjE4MjA5MDUyNjMuMDg2MDg0LCJzdWIiOiIxOTkiLCJzY29wZXMiOltdfQ.e4s1Ll2_bM3SXmYylppL_PXy5gxrSjl6EnzXAuholATfmBhOB0Ae1OowZBNlK2IsMk_-bZ6nDkMnzQKCridiS7bsxYlzqFmsJ3qWCWXpR1IM2zq3IDnUTtWGnluR9nCtdAeqxE981k12IlCXic0BPbnGNej8sWkN02wNC41NdL1V-bPjR2W06-QGu-y8YnFq8ijS7r4P_CEb29AUq7bqZHjns8Z9XyNQalUtu5wZwiDLepdI18yki6YyXClD4d1J_VSEdhfh815f-cPF0lU4i2ZkOhBG2LUwpPbHLlJjMjDwSR2G5bWoeQWp2gX0F1Hm5hz_MBlJZJgrdgqXfdKQBkbLnhHdvHDS3hC91UIwW6aGNx1ZoFdl13XlsauL1i4K0DLCuAT3VOLe3OP4t7tavdz1N1wT5eTIK_VJ70vQM5S6HYSo4CgTAMhH3wBZmSGozMilwcy2KlbkdqBLiLgv25MPkElmN0UgtO7JTWZBRj4CR3_QYUu1TrUhFxa3EHuK2npRiQMqwt5i_rWUdf28dVnds-qUyMMGbEFRM6zfM6gNsyr0hztK4eCHkANoSuwkkFh2cyQdpMCHBU3hSlPsE6YUdFzHh8JNg_qmze3EtHBFzL7AiVk0Lo8Sold2R71q-Z34gmHcwAFX_8SJx_v68gKRMTyIkJ4XJpf2ZG-eg3M`,
           },
-          extractIntent: (res) => res.data?.data?.upiIntent,
-        },
-        upi2: {
-          apiUrl: "https://api.worldpayme.com/",
-          payload: {
-            amount: total.toString(),
-            reference: newRef,
-            name: userdata.name,
-            mobile: userdata.phone,
-            email: userdata.email,
-            userId: "67b6f05e",
-            myip: "666666",
+          extractIntent: (res) => {
+             console.log("Orvian Response Data:", res.data);
+             return res.data?.payment_link || res.data?.upi_link || res.data?.data?.upiIntent || res.data?.upiUrl || res.data?.data?.paymentUrl || res.data?.intentUrl || res.data?.data?.url || res.data?.url || res.data?.intent;
           },
-          headers: {
-            Authorization: `Bearer -xebvWE39ZySDpB9DjLtQ4jxjQbyer6I`,
-            "Content-Type": "application/json",
-          },
-          extractIntent: (res) => res.data?.data?.upiIntent || res.data?.upiUrl,
         },
       };
 
@@ -460,14 +446,23 @@ useEffect(() => {
       });
 
       const rawLink = config.extractIntent(response);
-      const cleanedLink = rawLink.replace(/\\/g, "");
-      console.log("cleanedLink", rawLink);
+      if (!rawLink) {
+        console.error("Payment Gateway Error. Full Response:", response.data);
+        alert("Payment initiation failed. Gateway did not return a valid payment link. Please check console.");
+        setIsLoading(false);
+        return;
+      }
+      const cleanedLink = typeof rawLink === 'string' ? rawLink.replace(/\\/g, "") : String(rawLink);
+      console.log("cleanedLink", cleanedLink);
       setUpiIntent(cleanedLink);
       setTimeLeft(240);
       setStartTimer(true);
-    } catch (error) {
+      
+      // Attempt to auto-launch the UPI intent (mostly works on mobile)
+      window.location.href = cleanedLink;
+    } catch (error: any) {
       console.error("Payment Error:", error);
-      alert("Payment initiation failed. Please try again.");
+      alert("Payment initiation failed. Error: " + (error.response?.data?.message || error.message));
     } finally {
       setIsLoading(false);
     }
@@ -1004,37 +999,18 @@ useEffect(() => {
                       <input
                         type="radio"
                         name="payment"
-                        value="upi1"
-                        checked={selectedPayment === "upi1"}
+                        value="orvian"
+                        checked={selectedPayment === "orvian"}
                         onChange={(e) => setSelectedPayment(e.target.value)}
                         className="h-4 w-4 text-[#cba146] focus:ring-[#cba146]"
                         style={{ accentColor: "#cba146" }}
                       />
                       <div className="ml-3">
                         <span className="block font-medium text-gray-900">
-                          UPI Gateway 1
+                          UPI Payment (Orvian)
                         </span>
                         <span className="text-gray-500 text-sm">
-                          Pay using UPI Gateway 1
-                        </span>
-                      </div>
-                    </label>
-                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="upi2"
-                        checked={selectedPayment === "upi2"}
-                        onChange={(e) => setSelectedPayment(e.target.value)}
-                        className="h-4 w-4 text-[#cba146] focus:ring-[#cba146]"
-                        style={{ accentColor: "#cba146" }}
-                      />
-                      <div className="ml-3">
-                        <span className="block font-medium text-gray-900">
-                          UPI Gateway 2
-                        </span>
-                        <span className="text-gray-500 text-sm">
-                          Pay using UPI Gateway 2
+                          Pay securely using Orvian UPI
                         </span>
                       </div>
                     </label>
@@ -1095,59 +1071,68 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* QR Code Section */}
+              {/* QR Code Section Modal */}
               {upiIntent && (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-                  <h3 className="text-xl font-bold mb-4 text-gray-900">
-                    Complete Your Payment
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Scan this QR code with any UPI app to complete your payment
-                  </p>
-                  <div className="flex justify-center mb-6">
-                    <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
-                      <QRCode value={upiIntent} size={200} />
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm px-4">
+                  <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center relative max-h-[95vh] overflow-y-auto">
+                    <h3 className="text-2xl font-bold mb-3 text-gray-900">
+                      Complete Your Payment
+                    </h3>
+                    <p className="text-gray-600 mb-6 text-sm">
+                      Scan this QR code with any UPI app to complete your payment securely
+                    </p>
+                    <div className="flex flex-col items-center justify-center mb-6 gap-4">
+                      <div className="p-4 bg-white border-2 border-gray-100 rounded-xl shadow-inner inline-block">
+                        <QRCode value={upiIntent} size={220} />
+                      </div>
+                      <a 
+                        href={upiIntent} 
+                        className="w-full py-3.5 text-white rounded-lg font-bold text-lg shadow-md transition-opacity hover:opacity-90"
+                        style={{ background: "#cba146" }}
+                      >
+                        Pay Now
+                      </a>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <Clock
-                      className="w-5 h-5"
-                      style={{ color: "#cba146" }}
-                    />
-                    <span
-                      className="text-lg font-semibold"
-                      style={{ color: "#cba146" }}
-                    >
-                      Time remaining: {formatTime(timeLeft)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <Shield
-                        className="w-6 h-6 mx-auto mb-1"
+                    <div className="flex items-center justify-center gap-2 mb-6 p-3 rounded-lg bg-orange-50 border border-orange-100">
+                      <Clock
+                        className="w-5 h-5 animate-pulse"
                         style={{ color: "#cba146" }}
                       />
-                      <p className="text-sm font-medium text-gray-900">
-                        Secure
-                      </p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <CreditCard
-                        className="w-6 h-6 mx-auto mb-1"
+                      <span
+                        className="text-lg font-bold"
                         style={{ color: "#cba146" }}
-                      />
-                      <p className="text-sm font-medium text-gray-900">
-                        UPI Payment
-                      </p>
+                      >
+                        Time remaining: {formatTime(timeLeft)}
+                      </span>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <Check
-                        className="w-6 h-6 mx-auto mb-1"
-                        style={{ color: "#cba146" }}
-                      />
-                      <p className="text-sm font-medium text-gray-900">
-                        Instant
-                      </p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <Shield
+                          className="w-6 h-6 mx-auto mb-2"
+                          style={{ color: "#cba146" }}
+                        />
+                        <p className="text-xs font-semibold text-gray-700">
+                          Secure
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <CreditCard
+                          className="w-6 h-6 mx-auto mb-2"
+                          style={{ color: "#cba146" }}
+                        />
+                        <p className="text-xs font-semibold text-gray-700">
+                          UPI
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <Check
+                          className="w-6 h-6 mx-auto mb-2"
+                          style={{ color: "#cba146" }}
+                        />
+                        <p className="text-xs font-semibold text-gray-700">
+                          Instant
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

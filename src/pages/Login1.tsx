@@ -307,7 +307,7 @@ console.log(location.state,"loca")
       const res = await axios.post(
         `${baseUrl}/auth/login`,
         {
-          email,
+          email: email.trim().toLowerCase(),
           password,
           referenceWebsite,
         },
@@ -387,7 +387,7 @@ console.log(location.state,"loca")
         {
           firstName,
           lastName,
-          email,
+          email: email.trim().toLowerCase(),
           password,
           referenceWebsite,
           mobile,
@@ -399,8 +399,17 @@ console.log(location.state,"loca")
 
       const data = res.data;
       if (data && data.accessToken) {
+        // ✅ Save login data automatically
+        localStorage.setItem("userData", JSON.stringify(data.userData));
+        localStorage.setItem("token", data.accessToken);
         Swal.fire("Registration Successful", "", "success");
-        setIsLogin(true);
+        const intended = location.state;
+        if(intended){
+          navigate(intended.from)
+        }else{
+          navigate("/")
+        }
+        window.location.reload();
       } else {
         Swal.fire("Failed", data?.msg || "Something went wrong", "error");
       }

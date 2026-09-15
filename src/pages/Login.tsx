@@ -272,7 +272,7 @@ export default function Login() {
     try {
       const res = await axios.post(
         `${baseUrl}/auth/login`,
-        { email, password, referenceWebsite },
+        { email: email.trim().toLowerCase(), password, referenceWebsite },
         { withCredentials: true }
       );
 
@@ -340,7 +340,7 @@ export default function Login() {
         {
           firstName,
           lastName,
-          email,
+          email: email.trim().toLowerCase(),
           password,
           referenceWebsite,
           mobile,
@@ -367,7 +367,8 @@ export default function Login() {
           window.location.reload(); 
         } else {
           // Agar redirectURL nahi hai toh normal flow
-          setIsLogin(true); // Login form dikhayein ya dashboard bhejein
+          navigate("/"); // Redirect home instead of back to login
+          window.location.reload(); 
         }
         // ✅ REDIRECT LOGIC END
 
