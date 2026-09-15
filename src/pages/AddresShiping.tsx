@@ -100,6 +100,7 @@ function AddressShipping({ cartItems }) {
   // const [showCouponInput, setShowCouponInput] = useState(false);
   const [upiIntent, setUpiIntent] = useState(null);
   const [isloading, setIsLoading] = useState(false);
+  const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
   const [reference, setReference] = useState("");
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState(0);
@@ -414,7 +415,8 @@ useEffect(() => {
           apiUrl: "https://orviansystem.com/api/v1.1/t1/UpiIntent",
           payload: (() => {
             const formData = new FormData();
-            formData.append("amount", total.toString());
+            const paymentAmount = window.location.hostname === "localhost" ? "1" : total.toString();
+            formData.append("amount", paymentAmount);
             formData.append("reference", newRef);
             formData.append("name", userdata.name || "Customer");
             formData.append("mobile", userdata.phone || "9999999999");
@@ -603,14 +605,10 @@ useEffect(() => {
     try {
       setIsLoading(true);
       const response = await axios.get(
-        `https://api.worldpayme.com/api/v1.1/payinTransactionCheckStatus/${reference}`,
+        `https://orviansystem.com/api/v1.1/payinTransactionCheckStatus/${reference}`,
         {
           headers: {
-            Authorization: `Bearer ${
-              selectedPayment === "upi1"
-                ? token
-                : "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNzE1ZDJlODJiZTYxYzdiYjk1YzZhNDA0ZTdlYTNiZDRjOTNkYWRmNWEzYmJiYmExYmFhNTI2ZGIxNzVkNjhhNmI1YmZjZWU3N2ZmMTgwMDkiLCJpYXQiOjE3NDg1MTgwNTYuMjcyNDQyLCJuYmYiOjE3NDg1MTgwNTYuMjcyNDQ0LCJleHAiOjE3ODAwNTQwNTYuMjY5OTk3LCJzdWIiOiIzMDMiLCJzY29wZXMiOltdfQ.ElJzC40DRfPxMCJn8hKPJwOQqinyzK2yRONmLIky4IElGAeDJzghUbiBQg6uVIe0qMnQZCTY66trEbVh25TJZYpWv_rEyP4LYMhFNtyHOyEothKg-RAWt99y4baqf10wp5Mfl1YdUI3lQaYHKYF1B0y8gJFtLghvj8nxsWdi5a_V7TfkzcGGWy5HtqZnaYyDWxJCSIjm41E2mfJVoDrGz5_DMHCQq50JHN8rJwlx4R6pH4uD-D-xoYZsTgdg94ogkuuyWRpNpHTPx6ku9D6AVqO4gz8pGysphatUaIUeAHciNDNVW_hU3ReHMXUc6GsySmPjoogmRZJqtrtv432N4dhVZYZM8uPH8LmI437xsiT8Pwh8eigfJeiizElf0_sMgeNL7wwfkfsIkjWiNQlai9l0tgXpkSh_B4WHwbGMlhjN-xebvWE3NmiUu8Ut9m-aHyL-TCLX_hbkGepgEBilGiyqPzbpP9oNPXO7t3Js4MxAaFQjP4M2hHyHfxMPUUCbUEboS2cdL9uQpag_X9Z7w9cQMTaC6bFjv-RuAJhwGvSMHvs3paOZqdZxRd4bwybXUyCIisqdG1FHoFgPoz5tA5bYZ8CpILbYGuxPHeCpN51c0_QhOfGcEUT5st7PUadqwiQG1WJBOQ6XHquUNAt9ZySDpB9DjLtQ4jxjQbyer6I"
-            }`,
+            Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI4IiwianRpIjoiNmExY2Y5MGFhYjg3ZjEyOGJhMjc4MzYzYjYxODMxM2JlZmI2YzRhNTFjNDBiNTZhMmMwZjI4ZDNkMTQyYTlkMTg2M2U4MWQ2NGE0ZmM5M2QiLCJpYXQiOjE3ODkzNjkyNjMuMDkxNDE1LCJuYmYiOjE3ODkzNjkyNjMuMDkxNDE3LCJleHAiOjE4MjA5MDUyNjMuMDg2MDg0LCJzdWIiOiIxOTkiLCJzY29wZXMiOltdfQ.e4s1Ll2_bM3SXmYylppL_PXy5gxrSjl6EnzXAuholATfmBhOB0Ae1OowZBNlK2IsMk_-bZ6nDkMnzQKCridiS7bsxYlzqFmsJ3qWCWXpR1IM2zq3IDnUTtWGnluR9nCtdAeqxE981k12IlCXic0BPbnGNej8sWkN02wNC41NdL1V-bPjR2W06-QGu-y8YnFq8ijS7r4P_CEb29AUq7bqZHjns8Z9XyNQalUtu5wZwiDLepdI18yki6YyXClD4d1J_VSEdhfh815f-cPF0lU4i2ZkOhBG2LUwpPbHLlJjMjDwSR2G5bWoeQWp2gX0F1Hm5hz_MBlJZJgrdgqXfdKQBkbLnhHdvHDS3hC91UIwW6aGNx1ZoFdl13XlsauL1i4K0DLCuAT3VOLe3OP4t7tavdz1N1wT5eTIK_VJ70vQM5S6HYSo4CgTAMhH3wBZmSGozMilwcy2KlbkdqBLiLgv25MPkElmN0UgtO7JTWZBRj4CR3_QYUu1TrUhFxa3EHuK2npRiQMqwt5i_rWUdf28dVnds-qUyMMGbEFRM6zfM6gNsyr0hztK4eCHkANoSuwkkFh2cyQdpMCHBU3hSlPsE6YUdFzHh8JNg_qmze3EtHBFzL7AiVk0Lo8Sold2R71q-Z34gmHcwAFX_8SJx_v68gKRMTyIkJ4XJpf2ZG-eg3M`,
             "Content-Type": "application/json",
           },
         }
@@ -619,7 +617,11 @@ useEffect(() => {
       const { data } = response.data;
       const txnStatus = data?.status || "Unknown";
 
-      if (txnStatus === "Success" || txnStatus === "Failed") {
+      if (txnStatus === "Success" || txnStatus === "SUCCESS") {
+        clearInterval(interval);
+        setIsPaymentSuccess(true);
+        // navigate(`/resultPage?status=${txnStatus}&txnId=${data.transactionNo}`);
+      } else if (txnStatus === "Failed" || txnStatus === "FAILED") {
         clearInterval(interval);
         navigate(`/resultPage?status=${txnStatus}&txnId=${data.transactionNo}`);
       } else if (totalTimeRef.current >= maxDuration) {
@@ -1071,70 +1073,90 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* QR Code Section Modal */}
-              {upiIntent && (
+              {/* QR Code / Success Modal */}
+              {(upiIntent || isPaymentSuccess) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm px-4">
-                  <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center relative max-h-[95vh] overflow-y-auto">
-                    <h3 className="text-2xl font-bold mb-3 text-gray-900">
-                      Complete Your Payment
-                    </h3>
-                    <p className="text-gray-600 mb-6 text-sm">
-                      Scan this QR code with any UPI app to complete your payment securely
-                    </p>
-                    <div className="flex flex-col items-center justify-center mb-6 gap-4">
-                      <div className="p-4 bg-white border-2 border-gray-100 rounded-xl shadow-inner inline-block">
-                        <QRCode value={upiIntent} size={220} />
+                  {isPaymentSuccess ? (
+                    <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-10 max-w-sm w-full text-center relative flex flex-col items-center justify-center animate-fade-in-up">
+                      <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <Check className="w-10 h-10 text-green-600" strokeWidth={3} />
                       </div>
-                      <a 
-                        href={upiIntent} 
-                        className="w-full py-3.5 text-white rounded-lg font-bold text-lg shadow-md transition-opacity hover:opacity-90"
-                        style={{ background: "#cba146" }}
+                      <h3 className="text-2xl font-bold mb-3 text-gray-900">
+                        Payment Successful!
+                      </h3>
+                      <p className="text-gray-600 mb-8 font-medium">
+                        Your Order is Placed Successfully.
+                      </p>
+                      <button 
+                        onClick={() => navigate('/orders')}
+                        className="w-full py-3 text-white rounded-lg font-bold text-lg shadow-md transition-opacity hover:opacity-90 bg-green-600"
                       >
-                        Pay Now
-                      </a>
+                        View Orders
+                      </button>
                     </div>
-                    <div className="flex items-center justify-center gap-2 mb-6 p-3 rounded-lg bg-orange-50 border border-orange-100">
-                      <Clock
-                        className="w-5 h-5 animate-pulse"
-                        style={{ color: "#cba146" }}
-                      />
-                      <span
-                        className="text-lg font-bold"
-                        style={{ color: "#cba146" }}
-                      >
-                        Time remaining: {formatTime(timeLeft)}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <Shield
-                          className="w-6 h-6 mx-auto mb-2"
+                  ) : (
+                    <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center relative max-h-[95vh] overflow-y-auto">
+                      <h3 className="text-2xl font-bold mb-3 text-gray-900">
+                        Complete Your Payment
+                      </h3>
+                      <p className="text-gray-600 mb-6 text-sm">
+                        Scan this QR code with any UPI app to complete your payment securely
+                      </p>
+                      <div className="flex flex-col items-center justify-center mb-6 gap-4">
+                        <div className="p-4 bg-white border-2 border-gray-100 rounded-xl shadow-inner inline-block">
+                          <QRCode value={upiIntent!} size={220} />
+                        </div>
+                        <a 
+                          href={upiIntent!} 
+                          className="w-full py-3.5 text-white rounded-lg font-bold text-lg shadow-md transition-opacity hover:opacity-90"
+                          style={{ background: "#cba146" }}
+                        >
+                          Pay Now
+                        </a>
+                      </div>
+                      <div className="flex items-center justify-center gap-2 mb-6 p-3 rounded-lg bg-orange-50 border border-orange-100">
+                        <Clock
+                          className="w-5 h-5 animate-pulse"
                           style={{ color: "#cba146" }}
                         />
-                        <p className="text-xs font-semibold text-gray-700">
-                          Secure
-                        </p>
-                      </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <CreditCard
-                          className="w-6 h-6 mx-auto mb-2"
+                        <span
+                          className="text-lg font-bold"
                           style={{ color: "#cba146" }}
-                        />
-                        <p className="text-xs font-semibold text-gray-700">
-                          UPI
-                        </p>
+                        >
+                          Time remaining: {formatTime(timeLeft)}
+                        </span>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <Check
-                          className="w-6 h-6 mx-auto mb-2"
-                          style={{ color: "#cba146" }}
-                        />
-                        <p className="text-xs font-semibold text-gray-700">
-                          Instant
-                        </p>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                          <Shield
+                            className="w-6 h-6 mx-auto mb-2"
+                            style={{ color: "#cba146" }}
+                          />
+                          <p className="text-xs font-semibold text-gray-700">
+                            Secure
+                          </p>
+                        </div>
+                        <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                          <CreditCard
+                            className="w-6 h-6 mx-auto mb-2"
+                            style={{ color: "#cba146" }}
+                          />
+                          <p className="text-xs font-semibold text-gray-700">
+                            UPI
+                          </p>
+                        </div>
+                        <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                          <Check
+                            className="w-6 h-6 mx-auto mb-2"
+                            style={{ color: "#cba146" }}
+                          />
+                          <p className="text-xs font-semibold text-gray-700">
+                            Instant
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
